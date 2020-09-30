@@ -1,19 +1,81 @@
+# note: config variables are renamed to keep consistent with the project name.
+#       internal functions are not renamed to give credit to their original author.
 # Default appearance options. Override in config.fish if you want.
-if ! set -q lucid_dirty_indicator
-    set -g lucid_dirty_indicator "•"
+if ! set -q lumid_dirty_indicator
+    set -g lumid_dirty_indicator ""
 end
 
-# This should be set to be at least as long as lucid_dirty_indicator, due to a fish bug
-if ! set -q lucid_clean_indicator
-    set -g lucid_clean_indicator (string replace -r -a '.' ' ' $lucid_dirty_indicator)
+# This should be set to be at least as long as lumid_dirty_indicator, due to a fish bug
+if ! set -q lumid_clean_indicator
+    set -g lumid_clean_indicator ""
 end
 
-if ! set -q lucid_cwd_color
-    set -g lucid_cwd_color green
+if ! set -q lumid_status_success_color
+    set -g lumid_status_success_color white
 end
 
-if ! set -q lucid_git_color
-    set -g lucid_git_color blue
+if ! set -q lumid_status_fail_color
+    set -g lumid_status_fail_color red
+end
+
+if ! set -q lumid_display_cwd
+    set -g lumid_display_cwd true
+end
+
+if ! set -q lumid_cwd_color
+    set -g lumid_cwd_color green
+end
+
+if ! set -q lumid_display_git
+    set -g lumid_display_git true
+end
+
+if ! set -q lumid_git_color
+    set -g lumid_git_color blue
+end
+
+if ! set -q lumid_display_username
+    set -g lumid_display_username true
+end
+
+if ! set -q lumid_username_color
+    set -g lumid_username_color yellow
+end
+
+if ! set -q lumid_display_hostname
+    set -g lumid_display_hostname true
+end
+
+if ! set -q lumid_hostname_color
+    set -g lumid_hostname_color yellow
+end
+
+if ! set -q lumid_cwd_prefix
+    set -g lumid_cwd_prefix ""
+end
+
+if ! set -q lumid_git_prefix
+    set -g lumid_git_prefix " ∷ "
+end
+
+if ! set -q lumid_username_prefix
+    set -g lumid_username_prefix "\n"
+end
+
+if ! set -q lumid_hostname_prefix
+    set -g lumid_hostname_prefix " @ "
+end
+
+if ! set -q lumid_prompt
+    set -g lumid_prompt ' ❯ '
+end
+
+if ! set -q lumid_preferred_username
+    set -g lumid_preferred_username (eval whoami)
+end
+
+if ! set -q lumid_preferred_hostname
+    set -g lumid_preferred_hostname (eval hostname)
 end
 
 # State used for memoization and async calls.
@@ -135,9 +197,9 @@ function __lucid_git_status
         if set -q __lucid_dirty_state
             switch $__lucid_dirty_state
                 case 0
-                    set -g __lucid_dirty $lucid_clean_indicator
+                    set -g __lucid_dirty $lumid_clean_indicator
                 case 1
-                    set -g __lucid_dirty $lucid_dirty_indicator
+                    set -g __lucid_dirty $lumid_dirty_indicator
                 case 2
                     set -g __lucid_dirty "<err>"
             end
@@ -148,13 +210,13 @@ function __lucid_git_status
     end
 
     # Render git status. When in-progress, use previous state to reduce flicker.
-    set_color $lucid_git_color
+    set_color $lumid_git_color
     echo -n $__lucid_git_static ''
 
     if ! test -z $__lucid_dirty
         echo -n $__lucid_dirty
     else if ! test -z $prev_dirty
-        set_color --dim $lucid_git_color
+        set_color --dim $lumid_git_color
         echo -n $prev_dirty
         set_color normal
     end
@@ -163,19 +225,44 @@ function __lucid_git_status
 end
 
 function fish_prompt
-    set -l cwd (pwd | string replace "$HOME" '~')
+    set stat $status
 
-    echo ''
-    set_color $lucid_cwd_color
-    echo -sn $cwd
-    set_color normal
+    if $lumid_display_cwd
+        set -l cwd (pwd | string replace "$HOME" '~')
+        echo ''
+        echo -en $lumid_cwd_prefix
+        set_color $lumid_cwd_color
+        echo -en $cwd
+        set_color normal
+    end
 
-    if test $cwd != '~'
+    if $lumid_display_git
         set -l git_state (__lucid_git_status)
         if test $status -eq 0
-            echo -sn " on $git_state"
+            echo -en $lumid_git_prefix
+            echo -sn $git_state
         end
     end
 
-    echo -en '\n❯ '
+    if $lumid_display_username
+        echo -en $lumid_username_prefix
+        set_color $lumid_username_color
+        echo -en $lumid_preferred_username
+        set_color normal
+    end
+
+    if $lumid_display_hostname
+        echo -en $lumid_hostname_prefix
+        set_color $lumid_hostname_color
+        echo -en $lumid_preferred_hostname
+        set_color normal
+    end
+
+    if test $stat -eq 0
+        set_color $lumid_status_success_color
+    else
+        set_color $lumid_status_fail_color
+    end
+
+    echo -en $lumid_prompt
 end

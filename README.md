@@ -1,15 +1,17 @@
-# lucid
+# lumid
 
-A minimalist, high-performance fish prompt with async git dirty checks that just work.
+This is a fork of [`lucid`](https://github.com/mattgreen/lucid.fish), and is more customizable while preserving the high performance.
 
-![Preview](https://github.com/mattgreen/lucid.fish/raw/master/media/screenshot.png)
+![Preview](https://github.com/re-xyr/lumid.fish/raw/master/media/screenshot.png)
 
 ## Features
 
-* Classy, minimal left prompt that surfaces only actionable information
+* Classy (and minimalist if you wish!) left prompt with flexible configuration in
+  * delimiting characters,
+  * colors, and
+  * status to display (choose freely from `cwd`, `git`, `username` and `hostname`).
 * Asynchronous git dirty state prevents prompt-induced lag even on [massive repositories](https://github.com/llvm/llvm-project)
 * Shows current git branch/detached HEAD commit, action (if any), and dirty state
-* Restrained use of color and Unicode symbols
 * Single file, well-commented, zero-dependency implementation
 
 ## Requirements
@@ -18,13 +20,7 @@ A minimalist, high-performance fish prompt with async git dirty checks that just
 
 ## Installation
 
-Install with fisher:
-
-    $ fisher add mattgreen/lucid.fish
-
-**Back up your existing prompt before doing this!**
-
-Or install it manually. It's only one file, after all.
+Install it manually. It's only one file, after all.
 
 ## Performance
 
@@ -53,10 +49,12 @@ This information is memoized to avoid re-computation during prompt redraws, whic
 
 ## Customization
 
-* `lucid_dirty_indicator`: displayed when a repository is dirty. Default: `•`
-* `lucid_clean_indicator`: displayed when a repository is clean. Should be at least as long as `lucid_dirty_indicator` to work around a fish bug. Default: ` ` (a space)
-* `lucid_cwd_color`: color used for current working directory. Default: `green`
-* `lucid_git_color`: color used for git information. Default: `blue`
+* `lumid_dirty_indicator`: displayed when a repository is dirty. Default: `•`
+* `lumid_clean_indicator`: displayed when a repository is clean. Should be at least as long as `lumid_dirty_indicator` to work around a fish bug. Default: ` ` (a space)
+* `lumid_[cwd/git/status_success/status_fail/username/hostname]_color`: color used. Default: `green`, `blue`, `normal`, `red`, `yellow`, `yellow`.
+* `lumid_display_[cwd/git/username/hostname]`: whether to display this component or not. Default: true, true, true, true.
+* `lumid_[cwd/git/username/hostname]_prefix`: the prefix. Default: (empty), ` ∷ `, `\n`, ` @ `.
+* `lumid_preferred_[username/hostname]`: override the real username/hostname.
 
 ## Design
 
